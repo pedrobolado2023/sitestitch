@@ -35,6 +35,14 @@ app.post('/api/create-payment', async (req, res) => {
             });
         }
 
+        // Limpar e validar telefone
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+            return res.status(400).json({
+                error: 'Telefone inválido. Use o formato (DD) 9XXXX-XXXX'
+            });
+        }
+
         // Criar preferência de pagamento (Checkout Pro)
         const preference = {
             items: [
@@ -50,7 +58,7 @@ app.post('/api/create-payment', async (req, res) => {
                 name: name,
                 email: email,
                 phone: {
-                    number: phone.replace(/\D/g, '')
+                    number: cleanPhone
                 }
             },
             back_urls: {
