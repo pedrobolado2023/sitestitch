@@ -8,7 +8,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+    origin: [
+        'https://estude.q-aura.com.br',
+        'https://www.estude.q-aura.com.br',
+        'http://localhost:3000'
+    ],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
