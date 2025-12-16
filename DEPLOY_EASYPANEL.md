@@ -20,21 +20,19 @@
 
 1. **Repository URL:** `https://github.com/pedrobolado2023/sitestitch`
 2. **Branch:** `main`
-3. **Build Type:** Node.js
+3. **Build Type:** **Docker** (não Node.js)
 
 ### 3️⃣ Configurar Build
 
-**Build Command:**
-```bash
-npm install
-```
+**⚠️ IMPORTANTE:** O Easypanel deve detectar automaticamente o `Dockerfile`.
 
-**Start Command:**
-```bash
-npm start
-```
+Se pedir configuração manual:
+
+**Dockerfile Path:** `./Dockerfile` (ou deixe em branco)
 
 **Port:** `3000`
+
+**Não precisa configurar Build Command ou Start Command** - o Dockerfile já tem tudo!
 
 ### 4️⃣ Adicionar Variáveis de Ambiente
 
