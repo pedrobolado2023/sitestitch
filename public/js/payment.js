@@ -1,9 +1,7 @@
 // Payment handling for Q-AURA - Checkout Pro (Cartão de Crédito e Pix)
 
-// ⚠️ IMPORTANTE: Substitua a URL abaixo pela URL do seu Railway
-// Exemplo: https://stitch-hero-section-production.up.railway.app
-// Para encontrar sua URL: Railway Dashboard > Settings > Domains
-const API_URL = 'COLE_AQUI_A_URL_DO_RAILWAY';
+// Backend hospedado no Easypanel
+const API_URL = 'https://dados-backend.4nvzqw.easypanel.host';
 
 async function processPayment(event) {
     event.preventDefault();
