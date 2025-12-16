@@ -1,24 +1,8 @@
-# Q-AURA Landing Page com Integração Mercado Pago
+# 🎓 Q-AURA - Landing Page com Pagamento Mercado Pago
 
-Landing page completa do Q-AURA com integração de pagamentos via Pix usando a API do Mercado Pago.
+Landing page completa para o Q-AURA com integração de pagamento via **Mercado Pago Checkout Pro** (aceita cartão de crédito, Pix e outros métodos).
 
-## 🚀 Funcionalidades
-
-- ✅ Landing page responsiva e moderna
-- ✅ Integração completa com API do Mercado Pago
-- ✅ Pagamento via Pix com QR Code
-- ✅ Verificação automática de pagamento
-- ✅ Modal de pagamento interativo
-- ✅ Webhook para notificações
-- ✅ Backend Node.js/Express
-
-## 📋 Pré-requisitos
-
-- Node.js 14+ instalado
-- Conta no Mercado Pago
-- Credenciais do Mercado Pago (Access Token e Public Key)
-
-## 🔧 Instalação
+## 🚀 Como Usar
 
 ### 1. Instalar Dependências
 
@@ -28,24 +12,18 @@ npm install
 
 ### 2. Configurar Credenciais do Mercado Pago
 
-Copie o arquivo `.env.example` para `.env`:
-
-```bash
-copy .env.example .env
-```
-
-Edite o arquivo `.env` e adicione suas credenciais:
+Crie um arquivo `.env` na raiz do projeto (copie de `.env.example`):
 
 ```env
-MP_ACCESS_TOKEN=seu_access_token_aqui
-MP_PUBLIC_KEY=sua_public_key_aqui
+MP_ACCESS_TOKEN=SEU_ACCESS_TOKEN_DE_PRODUCAO
+MP_PUBLIC_KEY=SUA_PUBLIC_KEY_DE_PRODUCAO
 PORT=3000
 ```
 
-**Como obter as credenciais:**
-1. Acesse: https://www.mercadopago.com.br/developers/panel/credentials
-2. Copie o **Access Token** e a **Public Key**
-3. Cole no arquivo `.env`
+**Onde pegar as credenciais:**
+- Acesse: https://www.mercadopago.com.br/developers/panel/credentials
+- Use as **credenciais de PRODUÇÃO** (não de teste)
+- Copie o `Access Token` e a `Public Key`
 
 ### 3. Iniciar o Servidor
 
@@ -53,7 +31,22 @@ PORT=3000
 npm start
 ```
 
-O servidor estará rodando em: `http://localhost:3000`
+O servidor estará rodando em: **http://localhost:3000**
+
+## 💳 Como Funciona o Pagamento
+
+1. **Usuário preenche o formulário** de cadastro
+2. **Clica em "Finalizar e Pagar"**
+3. **É redirecionado** para o Checkout Pro do Mercado Pago
+4. **Escolhe o método de pagamento:**
+   - 💳 Cartão de Crédito
+   - 📱 Pix
+   - 🏦 Boleto
+   - Outros métodos disponíveis
+5. **Após o pagamento:**
+   - ✅ **Aprovado** → Redireciona para `/success`
+   - ❌ **Recusado** → Redireciona para `/failure`
+   - ⏳ **Pendente** → Redireciona para `/pending`
 
 ## 📁 Estrutura do Projeto
 
@@ -63,32 +56,25 @@ stitch_hero_section_q_aura_landing_page/
 ├── server.js               # Backend Node.js/Express
 ├── package.json            # Dependências do projeto
 ├── .env.example            # Exemplo de variáveis de ambiente
-├── .env                    # Suas credenciais (não commitar!)
+├── .env                    # Suas credenciais (NÃO COMMITAR!)
 ├── public/
 │   └── js/
-│       └── payment.js      # JavaScript de integração com MP
-└── README.md               # Este arquivo
+│       └── payment.js      # JavaScript de pagamento
+├── README.md               # Este arquivo
+└── .gitignore              # Arquivos ignorados pelo Git
 ```
 
-## 🔐 Fluxo de Pagamento
+## 🔧 Endpoints da API
 
-1. **Usuário preenche o formulário** de cadastro
-2. **Backend cria pagamento Pix** via API do Mercado Pago
-3. **Modal exibe QR Code** e código Pix copia e cola
-4. **Verificação automática** do status do pagamento a cada 5 segundos
-5. **Redirecionamento** para página de confirmação após aprovação
-6. **Webhook recebe notificação** do Mercado Pago
+### `POST /api/create-payment`
 
-## 🛠️ Endpoints da API
+Cria uma preferência de pagamento no Mercado Pago.
 
-### POST `/api/create-payment`
-Cria um novo pagamento Pix
-
-**Request Body:**
+**Request:**
 ```json
 {
-  "name": "Nome Completo",
-  "email": "email@exemplo.com",
+  "name": "João Silva",
+  "email": "joao@example.com",
   "phone": "(11) 99999-9999",
   "plan": "Plano Mensal",
   "amount": 19.90
@@ -99,105 +85,88 @@ Cria um novo pagamento Pix
 ```json
 {
   "success": true,
-  "payment_id": "123456789",
-  "status": "pending",
-  "qr_code": "00020126580014br.gov.bcb.pix...",
-  "qr_code_base64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "amount": 19.90
+  "preference_id": "123456789-abcd-1234-efgh-123456789012",
+  "init_point": "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=..."
 }
 ```
 
-### GET `/api/payment-status/:payment_id`
-Verifica o status de um pagamento
+### `POST /api/webhook`
 
-**Response:**
-```json
-{
-  "status": "approved",
-  "status_detail": "accredited",
-  "payment_id": "123456789"
-}
-```
+Recebe notificações do Mercado Pago sobre mudanças no status dos pagamentos.
 
-### POST `/api/webhook`
-Recebe notificações do Mercado Pago
+### Páginas de Retorno
 
-## 🎨 Personalização
+- `GET /success` - Pagamento aprovado
+- `GET /failure` - Pagamento recusado
+- `GET /pending` - Pagamento pendente
 
-### Alterar Valores dos Planos
+## 🎨 Tecnologias Utilizadas
 
-Edite o arquivo `index.html`, seção de cadastro:
+- **Frontend:**
+  - HTML5
+  - Tailwind CSS
+  - JavaScript (Vanilla)
+  - Google Fonts (Spline Sans)
+  - Material Symbols
 
-```html
-<select name="plan" id="planSelect">
-    <option value="Plano Mensal" data-amount="19.90">Plano Mensal - R$ 19,90</option>
-    <option value="Plano Anual" data-amount="190.80">Plano Anual - R$ 190,80</option>
-</select>
-```
+- **Backend:**
+  - Node.js
+  - Express
+  - Mercado Pago SDK
+  - CORS
+  - dotenv
 
-### Modificar Cores
+## 🔐 Segurança
 
-As cores estão definidas no Tailwind config no `index.html`:
+- ✅ Credenciais armazenadas em `.env` (não versionado)
+- ✅ `.gitignore` protege arquivos sensíveis
+- ✅ Webhook para validação de pagamentos
+- ✅ CORS configurado
+- ✅ Validação de dados no backend
 
-```javascript
-colors: {
-    "primary": "#f9f506",           // Amarelo principal
-    "background-light": "#f8f8f5",  // Fundo claro
-    "background-dark": "#23220f",   // Fundo escuro
-}
-```
+## 📊 Próximos Passos
 
-## 🔄 Webhook do Mercado Pago
+Após a confirmação do pagamento, você pode:
 
-Para receber notificações em produção, você precisa:
+1. **Salvar dados do usuário** em um banco de dados
+2. **Enviar e-mail de confirmação**
+3. **Ativar acesso ao WhatsApp Bot**
+4. **Gerar credenciais de acesso**
+5. **Enviar instruções de uso**
 
-1. **Expor seu servidor** para a internet (use ngrok para testes)
-2. **Configurar a URL** do webhook no Mercado Pago
-3. **Processar as notificações** no endpoint `/api/webhook`
+Implemente essas funcionalidades no webhook (`/api/webhook`) quando `payment.body.status === 'approved'`.
 
-### Usando ngrok para testes:
+## 🚀 Deploy
 
-```bash
-ngrok http 3000
-```
+### Frontend (Arquivos Estáticos)
 
-Copie a URL gerada (ex: `https://abc123.ngrok.io`) e configure no Mercado Pago.
+Pode ser hospedado em:
+- Vercel
+- Netlify
+- GitHub Pages
+- AWS S3 + CloudFront
 
-## 📝 Próximos Passos
+### Backend (Node.js)
 
-Após o pagamento ser aprovado, você pode:
+Pode ser hospedado em:
+- Heroku
+- Railway
+- Render
+- AWS EC2
+- DigitalOcean
 
-- [ ] Salvar dados do usuário em banco de dados
-- [ ] Enviar email de confirmação
-- [ ] Ativar acesso ao bot do WhatsApp
-- [ ] Criar dashboard de administração
-- [ ] Implementar sistema de assinaturas recorrentes
-
-## 🐛 Troubleshooting
-
-### Erro: "Access Token inválido"
-- Verifique se copiou o Access Token correto do Mercado Pago
-- Certifique-se de estar usando credenciais de **Produção** (não Teste)
-
-### Modal de pagamento não abre
-- Verifique o console do navegador para erros
-- Certifique-se de que o servidor está rodando
-- Confirme que o arquivo `payment.js` está sendo carregado
-
-### Pagamento não é detectado
-- Verifique se o webhook está configurado corretamente
-- Teste com valores reais (Pix de teste não funciona em produção)
+**Importante:** Configure as variáveis de ambiente no serviço de hospedagem!
 
 ## 📞 Suporte
 
-Para dúvidas sobre a API do Mercado Pago:
+Para dúvidas sobre a integração com Mercado Pago:
 - Documentação: https://www.mercadopago.com.br/developers/pt/docs
 - Suporte: https://www.mercadopago.com.br/developers/pt/support
 
 ## 📄 Licença
 
-Este projeto é privado e proprietário.
+Este projeto foi desenvolvido para o Q-AURA.
 
 ---
 
-**Desenvolvido para Q-AURA** 🚀
+**Desenvolvido com ❤️ para Q-AURA**
