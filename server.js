@@ -23,12 +23,12 @@ app.post('/api/create-payment', async (req, res) => {
 
         // Validação básica
         if (!name || !email || !phone || !plan || !amount) {
-            return res.status(400).json({ 
-                error: 'Dados incompletos. Preencha todos os campos.' 
+            return res.status(400).json({
+                error: 'Dados incompletos. Preencha todos os campos.'
             });
         }
 
-        // Criar preferência de pagamento
+        // Criar preferência de pagamento - versão simplificada
         const payment_data = {
             transaction_amount: parseFloat(amount),
             description: `Q-AURA - ${plan}`,
@@ -36,29 +36,16 @@ app.post('/api/create-payment', async (req, res) => {
             payer: {
                 email: email,
                 first_name: name.split(' ')[0],
-                last_name: name.split(' ').slice(1).join(' ') || name.split(' ')[0],
-                identification: {
-                    type: 'CPF',
-                    number: '00000000000' // Você pode adicionar campo CPF no formulário
-                },
-                address: {
-                    zip_code: '00000000',
-                    street_name: 'N/A',
-                    street_number: 0,
-                    neighborhood: 'N/A',
-                    city: 'N/A',
-                    federal_unit: 'SP'
-                }
-            },
-            notification_url: `${req.protocol}://${req.get('host')}/api/webhook`,
-            metadata: {
-                phone: phone,
-                plan: plan
+                last_name: name.split(' ').slice(1).join(' ') || name.split(' ')[0]
             }
         };
 
+        console.log('Criando pagamento com dados:', JSON.stringify(payment_data, null, 2));
+
         // Criar pagamento
         const payment = await mercadopago.payment.create(payment_data);
+
+        console.log('Pagamento criado com sucesso:', payment.body.id);
 
         // Retornar dados do pagamento
         res.json({
@@ -73,9 +60,11 @@ app.post('/api/create-payment', async (req, res) => {
 
     } catch (error) {
         console.error('Erro ao criar pagamento:', error);
-        res.status(500).json({ 
+        console.error('Detalhes do erro:', error.cause);
+        res.status(500).json({
             error: 'Erro ao processar pagamento',
-            details: error.message 
+            details: error.message,
+            cause: error.cause
         });
     }
 });
@@ -84,9 +73,9 @@ app.post('/api/create-payment', async (req, res) => {
 app.get('/api/payment-status/:payment_id', async (req, res) => {
     try {
         const { payment_id } = req.params;
-        
+
         const payment = await mercadopago.payment.get(payment_id);
-        
+
         res.json({
             status: payment.body.status,
             status_detail: payment.body.status_detail,
@@ -95,9 +84,9 @@ app.get('/api/payment-status/:payment_id', async (req, res) => {
 
     } catch (error) {
         console.error('Erro ao verificar pagamento:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Erro ao verificar status',
-            details: error.message 
+            details: error.message
         });
     }
 });
@@ -109,7 +98,7 @@ app.post('/api/webhook', async (req, res) => {
 
         if (type === 'payment') {
             const payment = await mercadopago.payment.get(data.id);
-            
+
             console.log('Pagamento atualizado:', {
                 id: payment.body.id,
                 status: payment.body.status,
